@@ -1,0 +1,26 @@
+{
+  "name": "patch-notes-when",
+  "version": "1.0.0",
+  "description": "Backend server for Patch Notes When",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "deploy": "gcloud app deply",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/exdunn/PatchNotesWhen.git"
+  },
+  "author": "exdunn",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/exdunn/PatchNotesWhen/issues"
+  },
+  "homepage": "https://github.com/exdunn/PatchNotesWhen#readme",
+  "dependencies": {
+    "express": "^4.16.12",
+    "mongoose": "^5.8.1",
+    "cors": "^2.8.5"
+  }
+}

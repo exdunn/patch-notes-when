@@ -1,0 +1,8 @@
+.card {
+  margin: 2rem;
+  transition: background-color 0.4s;
+}
+
+.card:hover {
+  background-color: rgb(206, 131, 131);
+}

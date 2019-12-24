@@ -1,0 +1,23 @@
+.app-container {
+  background-image: url("./img/CotA.jpg");
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+.spinner-border {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  color: white;
+}
+
+.header {
+  padding-top: 2rem;
+  color: rgb(212, 212, 212);
+  text-align: center;
+  font-weight: 400;
+}
+
+.popups {
+  max-width: 85rem;
+}
