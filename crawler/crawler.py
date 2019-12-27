@@ -18,24 +18,24 @@ def get_element(parent, el, attributes, i=0):
     return None
 
 
-def write_db(db_name, col_name, docs):
+def insert_many_col(db_name, col_name, docs):
     client = mc(get_secret())
     db = client.get_database(db_name)
     col = db[col_name]
     col.insert_many(docs)
 
 
-def upsert_db(db_name, col_name, docs):
+def replace_col(db_name, col_name, docs):
     client = mc(get_secret())
     db = client.get_database(db_name)
     col = db[col_name]
 
     for doc in docs:
         thread_filter = {"thread_num": doc['thread_num']}
-        col.find_one_and_update(thread_filter, {'$set': doc}, upsert=True)
+        col.find_one_and_replace(thread_filter, doc, upsert=True)
 
 
-def wipe_db(db_name, col_name):
+def wipe_col(db_name, col_name):
     client = mc(get_secret())
     db = client.get_database(db_name)
     col = db[col_name]
@@ -85,6 +85,7 @@ def main(is_test):
             profile_a = profile_span.a
             new_a = page_soup.new_tag(
                 "a", href="https://www.pathofexile.com" + profile_a['href'])
+            new_a.string = profile_a.text
             profile_a.replace_with(new_a)
 
         thread_num = url.split('/')[-1].strip()
@@ -95,7 +96,7 @@ def main(is_test):
                      'post_date': post_date,
                      'author': author})
 
-    upsert_db('thread_db', 'testing_zone' if test else 'threads', docs)
+    replace_col('thread_db', 'testing_zone' if is_test else 'threads', docs)
 
 
 def test():
