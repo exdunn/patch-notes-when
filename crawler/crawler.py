@@ -48,7 +48,7 @@ def write_soup(filename, content):
     f.close()
 
 
-def main():
+def main(is_test):
     # wipe_db('thread_db', 'threads')
     url_opener = SneakyURLopener()
     my_url = 'https://www.pathofexile.com/forum/view-forum/patch-notes'
@@ -66,7 +66,8 @@ def main():
         title_container = get_element(thread, "div", {"class": "title"})
         title = title_container.a.text.strip()
         href = 'https://www.pathofexile.com' + title_container.a['href']
-        post_date = get_element(thread, 'span', {'class': 'post_date'}).text.strip(',')
+        post_date = get_element(
+            thread, 'span', {'class': 'post_date'}).text.strip(',')
         author = get_element(thread, 'span', {'class': 'profile-link'}).a.text
         threads_infos.append((href, title, post_date, author))
 
@@ -78,6 +79,14 @@ def main():
         page_soup = Soup(page_html, "html.parser")
         content = get_element(page_soup, "tr", {})
 
+        # redirect profile URLs
+        profile_span = get_element(content, "span", {"class": "profile-link"})
+        if profile_span:
+            profile_a = profile_span.a
+            new_a = page_soup.new_tag(
+                "a", href="https://www.pathofexile.com" + profile_a['href'])
+            profile_a.replace_with(new_a)
+
         thread_num = url.split('/')[-1].strip()
         html = content.prettify().replace('<br>', '').replace('</br>', '')
         docs.append({'thread_num': thread_num,
@@ -86,8 +95,12 @@ def main():
                      'post_date': post_date,
                      'author': author})
 
-    upsert_db('thread_db', 'threads', docs)
+    upsert_db('thread_db', 'testing_zone' if test else 'threads', docs)
+
+
+def test():
+    pass
 
 
 if __name__ == "__main__":
-    main()
+    main(False)
