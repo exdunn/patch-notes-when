@@ -24,9 +24,12 @@ yarn-error.log*
 
 /backend/secret.js
 
+# crawler
 /crawler/secret.py
 /crawler/*.txt
 /crawler/*.html
+/crawler/__pycache__/
+*.pyc
 
 # Local Netlify folder
 .netlify
