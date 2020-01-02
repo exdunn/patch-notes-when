@@ -1,10 +1,9 @@
 import urllib.request as url_request
 from bs4 import BeautifulSoup as Soup
-from pymongo import MongoClient as mc
+from pymongo import UpdateOne, MongoClient as mc
 from secret import get_secret
 
 connect_string = get_secret()
-
 
 class SneakyURLopener(url_request.FancyURLopener):
     version = "Mozilla/5.0"
@@ -18,14 +17,25 @@ def get_element(parent, el, attributes, i=0):
     return None
 
 
-def insert_many_col(db_name, col_name, docs):
+def insert_docs(db_name, col_name, docs):
     client = mc(get_secret())
     db = client.get_database(db_name)
     col = db[col_name]
     col.insert_many(docs)
 
+def insert_new_docs(db_name, col_name, docs):
+    client = mc(get_secret())
+    db = client.get_database(db_name)
+    col = db[col_name]
+    requests = []
 
-def replace_col(db_name, col_name, docs):
+    for doc in docs:
+        thread_filter = {"thread_num": doc['thread_num']}
+        requests.append(UpdateOne(thread_filter, {'$set': doc}, upsert=True))
+
+    col.bulk_write(requests)
+
+def replace_docs(db_name, col_name, docs):
     client = mc(get_secret())
     db = client.get_database(db_name)
     col = db[col_name]
@@ -47,61 +57,99 @@ def write_soup(filename, content):
     f.write(content.prettify())
     f.close()
 
+def write_file(filename, content):
+    f = open(filename, "w", encoding='utf-8')
+    f.write(content)
+    f.close()
 
-def main(is_test):
-    # wipe_db('thread_db', 'threads')
+def get_soup(url):
     url_opener = SneakyURLopener()
-    my_url = 'https://www.pathofexile.com/forum/view-forum/patch-notes'
-    url_client = url_opener.open(my_url)
+    url_client = url_opener.open(url)
     page_html = url_client.read()
     url_client.close()
+    return Soup(page_html, "html.parser")
 
-    page_soup = Soup(page_html, "html.parser")
-    thread_container = page_soup.tbody.findAll("tr")
+def get_thread_infos(url, crawl_all):
+    """
+    :param url: url to start crawling at. Ie 'https://www.pathofexile.com/forum/view-forum/patch-notes'
+    :param crawl_all: if True, then crawl the entire forum section, else only crawl the first page
 
-    threads_infos = []
+    :return: list of {url, title, post date, author} for threads
+    """
+    pages = get_pages(url) if crawl_all else 1
+    result = []
+
+    for i in range(2):
+        page_soup = get_soup('%s/page/%d' %  (url, i+1))
+        thread_container = page_soup.tbody.findAll("tr")
+        for thread in thread_container:
+            title_container = get_element(thread, "div", {"class": "title"})
+            title = title_container.a.text.strip()
+            href = 'https://www.pathofexile.com' + title_container.a['href']
+            post_date = get_element(
+                thread, 'span', {'class': 'post_date'}).text.strip(',')
+            author = get_element(thread, 'span', {'class': 'profile-link'}).a.text
+            result.append((href, title, post_date, author))
+    write_file('output.txt', str(result))
+    return result
+
+
+def get_pages(url):
+    """
+    Helper function for get_thread_infos. Finds total pages in the forum
+    """
+    page_soup = get_soup(url)
+    controls_div = get_element(page_soup, 'div', {'class': 'botBar last forumControls'})
+    page_as = controls_div.findAll('a')
+    
+    try:
+        pages = int(page_as[-2].text)
+        return pages
+    except ValueError:
+        print(page_as[-2] + " is not an integer.")
+        return 0
+
+def parse_doc_from_thread(url, title, post_date, author):
+    '''
+    Creates a doc to be inserted into one of the collections in threads_db
+    '''
+    page_soup =  get_soup(url)
+    content = get_element(page_soup, "tr", {})
+
+    # redirect profile URLs in formatted HTML
+    profile_span = get_element(content, "span", {"class": "profile-link"})
+    if profile_span:
+        profile_a = profile_span.a
+        new_a = page_soup.new_tag(
+            "a", href="https://www.pathofexile.com" + profile_a['href'])
+        new_a.string = profile_a.text
+        profile_a.replace_with(new_a)
+
+    thread_num = url.split('/')[-1].strip()
+    html = content.prettify().replace('<br>', '').replace('</br>', '')
+    return {'thread_num': thread_num,
+            'title': title, 
+            'html': html,
+            'text': content.text,
+            'post_date': post_date,
+            'author': author}
+
+
+def main(is_test):
+    # wipe_col('thread_db', 'testing_zone')
+    my_url = 'https://www.pathofexile.com/forum/view-forum/patch-notes'
+    thread_infos = get_thread_infos(my_url, False)
     docs = []
 
-    for thread in thread_container:
-        title_container = get_element(thread, "div", {"class": "title"})
-        title = title_container.a.text.strip()
-        href = 'https://www.pathofexile.com' + title_container.a['href']
-        post_date = get_element(
-            thread, 'span', {'class': 'post_date'}).text.strip(',')
-        author = get_element(thread, 'span', {'class': 'profile-link'}).a.text
-        threads_infos.append((href, title, post_date, author))
+    for url, title, post_date, author in thread_infos:
+        docs.append(parse_doc_from_thread(url, title, post_date, author))
 
-    for url, title, post_date, author in threads_infos:
-        url_client = url_opener.open(url)
-        page_html = url_client.read()
-        url_client.close()
-
-        page_soup = Soup(page_html, "html.parser")
-        content = get_element(page_soup, "tr", {})
-
-        # redirect profile URLs
-        profile_span = get_element(content, "span", {"class": "profile-link"})
-        if profile_span:
-            profile_a = profile_span.a
-            new_a = page_soup.new_tag(
-                "a", href="https://www.pathofexile.com" + profile_a['href'])
-            new_a.string = profile_a.text
-            profile_a.replace_with(new_a)
-
-        thread_num = url.split('/')[-1].strip()
-        html = content.prettify().replace('<br>', '').replace('</br>', '')
-        docs.append({'thread_num': thread_num,
-                     'title': title, 'html': html,
-                     'text': content.text,
-                     'post_date': post_date,
-                     'author': author})
-
-    replace_col('thread_db', 'testing_zone' if is_test else 'threads', docs)
+    insert_new_docs('thread_db', 'testing_zone' if is_test else 'threads', docs)
 
 
 def test():
-    pass
+    get_thread_infos('https://www.pathofexile.com/forum/view-forum/patch-notes', False)
 
 
 if __name__ == "__main__":
-    main(False)
+    main(True)
