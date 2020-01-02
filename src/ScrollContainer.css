@@ -2,3 +2,15 @@
   max-width: 85rem;
   padding: 2rem 0;
 }
+
+.tab-buttons {
+  padding: 0 2rem;
+}
+
+.patch-tab-button {
+  margin-right: 5px;
+}
+
+.forum-tab-button {
+  margin-left: 5px;
+}

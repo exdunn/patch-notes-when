@@ -13,4 +13,5 @@ const DataSchema = new Schema({
 });
 
 // export the new Schema so we could modify it using Node.js
-module.exports = mongoose.model("thread", DataSchema);
+exports.patchNotes = mongoose.model("patch-note", DataSchema);
+exports.news = mongoose.model("new", DataSchema);

@@ -4,22 +4,39 @@ import ScrollContainer from "./ScrollContainer";
 import { Spinner } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-class App extends Component {
-  state = { data: [], intervalIsSet: false, isLoading: true };
+const SERVER_URL = "https://first-project-234822.appspot.com";
+const LOCAL_HOST = "http://localhost:8080";
 
-  // when component mounts, first thing it does is fetch all existing data in our db
-  // then we incorporate a polling logic so that we can easily see if our db has
-  // changed and implement those changes into our UI
+class App extends Component {
+  state = {
+    data: { patchNotes: [], announcements: [] },
+    intervalIsSet: false,
+    isLoading: true
+  };
+
   componentDidMount() {
-    this.getDataFromDb();
+    this.getPatchNotesFromDb();
+    this.getNewsFromDb();
   }
 
-  // our first get method that uses our backend api to
-  // fetch data from our data base
-  getDataFromDb = () => {
-    fetch("https://first-project-234822.appspot.com/api/getData")
+  getPatchNotesFromDb = () => {
+    fetch(SERVER_URL + "/api/getPatchNotes?limit=20")
       .then(data => data.json())
-      .then(res => this.setState({ data: res.data, isLoading: false }));
+      .then(res => {
+        let newData = this.state.data;
+        newData.patchNotes = res.data;
+        this.setState({ data: newData });
+      });
+  };
+
+  getNewsFromDb = () => {
+    fetch(SERVER_URL + "/api/getNews?limit=20")
+      .then(data => data.json())
+      .then(res => {
+        let newData = this.state.data;
+        newData.announcements = res.data;
+        this.setState({ data: newData });
+      });
   };
 
   getLoader() {
@@ -27,11 +44,10 @@ class App extends Component {
   }
 
   render() {
-    const { data } = this.state;
     return (
       <div className="app-container">
         {this.getLoader()}
-        <ScrollContainer data={data} />
+        <ScrollContainer data={this.state.data} />
       </div>
     );
   }

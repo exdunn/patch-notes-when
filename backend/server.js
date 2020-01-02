@@ -2,7 +2,9 @@ const mongoose = require("mongoose");
 const express = require("express");
 const getSecret = require("./secret");
 var cors = require("cors");
-const Data = require("./data");
+const dataSchema = require("./data.js");
+const news = dataSchema.news;
+const patchNotes = dataSchema.patchNotes;
 
 const app = express();
 app.use(cors());
@@ -20,13 +22,38 @@ db.once("open", () => console.log("connected to the database"));
 // checks if connection with the database is successful
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-// this is our get method
-// this method fetches all available data in our database
-router.get("/getData", (req, res) => {
-  Data.find({}, null, { sort: { thread_num: -1 } }, (err, data) => {
-    if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true, data });
-  });
+// router.get("/getPatchNotes", (req, res) => {
+//   patchNotes.find(
+//     {},
+//     null,
+//     { sort: { thread_num: -1 }, batchSize: 1 },
+//     (err, data) => {
+//       if (err) return res.json({ success: false, error: err });
+//       return res.json({ success: true, data });
+//     }
+//   );
+// });
+
+router.get("/getPatchNotes", (req, res) => {
+  let limit = parseInt(req.query.limit);
+  patchNotes
+    .find()
+    .sort({ thread_num: -1 })
+    .limit(limit)
+    .then(data => {
+      return res.json({ success: true, data });
+    });
+});
+
+router.get("/getNews", (req, res) => {
+  let limit = parseInt(req.query.limit);
+  news
+    .find()
+    .sort({ thread_num: -1 })
+    .limit(limit)
+    .then(data => {
+      return res.json({ success: true, data });
+    });
 });
 
 app.get("/", (req, res) => {
