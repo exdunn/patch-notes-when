@@ -28,9 +28,10 @@ yarn-error.log*
 /crawler/secret.py
 /crawler/*.txt
 /crawler/*.html
-/crawler/__pycache__/
 *.pyc
 /crawler/.idea
+/crawler/__pycache__
+/.vscode
 
 # Local Netlify folder
 .netlify
