@@ -30,6 +30,7 @@ yarn-error.log*
 /crawler/*.html
 /crawler/__pycache__/
 *.pyc
+/crawler/.idea
 
 # Local Netlify folder
 .netlify
