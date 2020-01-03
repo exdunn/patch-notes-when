@@ -36,10 +36,12 @@ db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
 router.get("/getPatchNotes", (req, res) => {
   let limit = parseInt(req.query.limit);
+  let skip = parseInt(req.query.skip);
   patchNotes
     .find()
     .sort({ thread_num: -1 })
     .limit(limit)
+    .skip(skip)
     .then(data => {
       return res.json({ success: true, data });
     });
@@ -47,10 +49,12 @@ router.get("/getPatchNotes", (req, res) => {
 
 router.get("/getNews", (req, res) => {
   let limit = parseInt(req.query.limit);
+  let skip = parseInt(req.query.skip);
   news
     .find()
     .sort({ thread_num: -1 })
     .limit(limit)
+    .skip(skip)
     .then(data => {
       return res.json({ success: true, data });
     });
