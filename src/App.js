@@ -11,12 +11,20 @@ class App extends Component {
   state = {
     data: { patchNotes: [], announcements: [] },
     intervalIsSet: false,
-    isLoading: true
+    loading: true
   };
 
   componentDidMount() {
-    this.getPatchNotesFromDb();
-    this.getNewsFromDb();
+    Promise.all([
+      new Promise((res, rej) => {
+        this.getPatchNotesFromDb();
+      }),
+      new Promise((res, rej) => {
+        this.getNewsFromDb();
+      })
+    ]).then(() => {
+      this.setState({ loading: false });
+    });
   }
 
   getPatchNotesFromDb = () => {
@@ -40,7 +48,7 @@ class App extends Component {
   };
 
   getLoader() {
-    return this.state.isLoading ? <Spinner animation="border" /> : null;
+    return this.state.loading ? <Spinner animation="border" /> : null;
   }
 
   render() {
