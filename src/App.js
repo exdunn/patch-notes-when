@@ -17,33 +17,35 @@ class App extends Component {
   componentDidMount() {
     Promise.all([
       new Promise((res, rej) => {
-        this.getPatchNotesFromDb();
+        this.getPatchNotesFromDb(res);
       }),
       new Promise((res, rej) => {
-        this.getNewsFromDb();
+        this.getNewsFromDb(res);
       })
     ]).then(() => {
       this.setState({ loading: false });
     });
   }
 
-  getPatchNotesFromDb = () => {
-    fetch(SERVER_URL + "/api/getPatchNotes?limit=20")
+  getPatchNotesFromDb = resolve => {
+    fetch(SERVER_URL + "/api/getPatchNotes?limit=30")
       .then(data => data.json())
       .then(res => {
         let newData = this.state.data;
         newData.patchNotes = res.data;
         this.setState({ data: newData });
+        resolve("Patch-notes loaded.");
       });
   };
 
-  getNewsFromDb = () => {
-    fetch(SERVER_URL + "/api/getNews?limit=20")
+  getNewsFromDb = resolve => {
+    fetch(SERVER_URL + "/api/getNews?limit=30")
       .then(data => data.json())
       .then(res => {
         let newData = this.state.data;
         newData.announcements = res.data;
         this.setState({ data: newData });
+        resolve("Announcements loaded.");
       });
   };
 
