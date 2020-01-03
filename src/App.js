@@ -1,8 +1,11 @@
 import React, { Component } from "react";
-import "./App.css";
-import ScrollContainer from "./ScrollContainer";
 import { Spinner } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
+import $ from "jquery";
+
+import ScrollContainer from "./ScrollContainer";
+import NavBar from "./NavBar";
+import { Forums } from "./enums";
+import "./App.css";
 
 const SERVER_URL = "https://first-project-234822.appspot.com";
 const LOCAL_HOST = "http://localhost:8080";
@@ -11,7 +14,8 @@ class App extends Component {
   state = {
     data: { patchNotes: [], announcements: [] },
     intervalIsSet: false,
-    loading: true
+    loading: true,
+    forum: Forums.PATCH_NOTES
   };
 
   componentDidMount() {
@@ -50,17 +54,27 @@ class App extends Component {
     return this.state.loading ? <Spinner animation="border" /> : null;
   }
 
+  handleForumTabClick = forum => {
+    this.setState({ forum });
+    $("html, body").animate({ scrollTop: 0 }, "fast");
+    return false;
+  };
+
   render() {
     return (
-      <div className="app-container">
-        {this.getLoader()}
-        <ScrollContainer
-          data={this.state.data}
-          handleScroll={{
-            patchNotes: this.getPatchNotesFromDb,
-            announcements: this.getNewsFromDb
-          }}
-        />
+      <div>
+        <NavBar handleTabClick={this.handleForumTabClick} />
+        <div className="app-container">
+          {this.getLoader()}
+          <ScrollContainer
+            data={this.state.data}
+            handleScroll={{
+              patchNotes: this.getPatchNotesFromDb,
+              announcements: this.getNewsFromDb
+            }}
+            forum={this.state.forum}
+          />
+        </div>
       </div>
     );
   }

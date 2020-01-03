@@ -1,13 +1,10 @@
 import React, { Component } from "react";
-import Popup from "./Popup";
-import "./ScrollContainer.css";
 import { Spinner } from "react-bootstrap";
 import $ from "jquery";
 
-const Forums = {
-  PATCH_NOTES: "patchNotes",
-  ANNOUNCEMENTS: "announcements"
-};
+import Popup from "./Popup";
+import { Forums } from "./enums";
+import "./ScrollContainer.css";
 
 const LIMIT = 10;
 
@@ -56,23 +53,16 @@ class ScrollContainer extends Component {
     }
   }
 
-  handlePatchClick = () => {
-    let newItems = this.state.items;
-    newItems[this.state.forum] = 10;
-    this.setState({
-      forum: Forums.PATCH_NOTES,
-      items: newItems
-    });
-  };
-
-  handleAnnouncementsClick = () => {
-    let newItems = this.state.items;
-    newItems[this.state.forum] = 10;
-    this.setState({
-      forum: Forums.ANNOUNCEMENTS,
-      items: newItems
-    });
-  };
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.forum !== this.state.forum) {
+      let newItems = this.state.items;
+      newItems[this.state.forum] = 10;
+      this.setState({
+        forum: nextProps.forum,
+        items: newItems
+      });
+    }
+  }
 
   getLoader() {
     return this.state.loading ? (
@@ -83,17 +73,6 @@ class ScrollContainer extends Component {
   render() {
     return (
       <div className="container popups" ref="myscroll">
-        <div className="tab-buttons">
-          <button className="patch-tab-button" onClick={this.handlePatchClick}>
-            Patch Notes
-          </button>
-          <button
-            className="forum-tab-button"
-            onClick={this.handleAnnouncementsClick}
-          >
-            Announcements
-          </button>
-        </div>
         {this.props.data[this.state.forum]
           .slice(0, this.state.items[this.state.forum])
           .map(data => (

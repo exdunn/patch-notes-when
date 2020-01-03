@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
-import "./Popup.css";
+import { Modal, ModalHeader, ModalBody } from "reactstrap";
+
 import CardButton from "./CardButton";
+import "./Popup.css";
 
 class Popup extends Component {
   constructor(props) {

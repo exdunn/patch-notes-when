@@ -17,5 +17,5 @@
 
 .load-spinner {
   position: fixed;
-  top: 96%;
+  top: 96% !important;
 }

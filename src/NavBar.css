@@ -1,0 +1,22 @@
+.nav-bar {
+  position: fixed !important;
+  padding: 15px 0px 10px 0px;
+  width: 100%;
+  z-index: 1;
+  background-color: rgba(50, 50, 50, 1);
+  color: rgba(220, 220, 220, 0.9);
+  padding-left: 5% !important;
+}
+
+li {
+  box-sizing: border-box;
+}
+
+.nav-tab {
+  padding: 15px 10px 12px 10px;
+}
+
+.nav-tab:hover {
+  background-color: rgb(100, 100, 100) !important;
+  border-radius: 2px;
+}
