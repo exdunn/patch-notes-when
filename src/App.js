@@ -15,19 +15,12 @@ class App extends Component {
   };
 
   componentDidMount() {
-    Promise.all([
-      new Promise((res, rej) => {
-        this.getPatchNotesFromDb(res);
-      }),
-      new Promise((res, rej) => {
-        this.getNewsFromDb(res);
-      })
-    ]).then(() => {
+    Promise.all([this.getPatchNotesFromDb, this.getNewsFromDb]).then(() => {
       this.setState({ loading: false });
     });
   }
 
-  getPatchNotesFromDb = resolve => {
+  getPatchNotesFromDb = new Promise((resolve, reject) => {
     fetch(SERVER_URL + "/api/getPatchNotes?limit=30")
       .then(data => data.json())
       .then(res => {
@@ -36,18 +29,18 @@ class App extends Component {
         this.setState({ data: newData });
         resolve("Patch-notes loaded.");
       });
-  };
+  });
 
-  getNewsFromDb = resolve => {
+  getNewsFromDb = new Promise((resolve, reject) => {
     fetch(SERVER_URL + "/api/getNews?limit=30")
       .then(data => data.json())
       .then(res => {
         let newData = this.state.data;
         newData.announcements = res.data;
         this.setState({ data: newData });
-        resolve("Announcements loaded.");
+        resolve("News loaded.");
       });
-  };
+  });
 
   getLoader() {
     return this.state.loading ? <Spinner animation="border" /> : null;
