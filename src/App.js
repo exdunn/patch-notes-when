@@ -15,32 +15,36 @@ class App extends Component {
   };
 
   componentDidMount() {
-    Promise.all([this.getPatchNotesFromDb, this.getNewsFromDb]).then(() => {
+    Promise.all([this.getPatchNotesFromDb(), this.getNewsFromDb()]).then(() => {
       this.setState({ loading: false });
     });
   }
 
-  getPatchNotesFromDb = new Promise((resolve, reject) => {
-    fetch(SERVER_URL + "/api/getPatchNotes?limit=30")
-      .then(data => data.json())
-      .then(res => {
-        let newData = this.state.data;
-        newData.patchNotes = res.data;
-        this.setState({ data: newData });
-        resolve("Patch-notes loaded.");
-      });
-  });
+  getPatchNotesFromDb = (skip = 0, limit = 20) => {
+    return new Promise((resolve, reject) => {
+      fetch(SERVER_URL + `/api/getPatchNotes?limit=${limit}?&skip=${skip}`)
+        .then(data => data.json())
+        .then(res => {
+          let newData = this.state.data;
+          newData.patchNotes = newData.patchNotes.concat(res.data);
+          this.setState({ data: newData });
+          resolve("Patch-notes loaded.");
+        });
+    });
+  };
 
-  getNewsFromDb = new Promise((resolve, reject) => {
-    fetch(SERVER_URL + "/api/getNews?limit=30")
-      .then(data => data.json())
-      .then(res => {
-        let newData = this.state.data;
-        newData.announcements = res.data;
-        this.setState({ data: newData });
-        resolve("News loaded.");
-      });
-  });
+  getNewsFromDb = (skip = 0, limit = 20) => {
+    return new Promise((resolve, reject) => {
+      fetch(SERVER_URL + `/api/getNews?limit=${limit}?&skip=${skip}`)
+        .then(data => data.json())
+        .then(res => {
+          let newData = this.state.data;
+          newData.announcements = newData.announcements.concat(res.data);
+          this.setState({ data: newData });
+          resolve("News loaded.");
+        });
+    });
+  };
 
   getLoader() {
     return this.state.loading ? <Spinner animation="border" /> : null;
@@ -50,7 +54,13 @@ class App extends Component {
     return (
       <div className="app-container">
         {this.getLoader()}
-        <ScrollContainer data={this.state.data} />
+        <ScrollContainer
+          data={this.state.data}
+          handleScroll={{
+            patchNotes: this.getPatchNotesFromDb,
+            announcements: this.getNewsFromDb
+          }}
+        />
       </div>
     );
   }

@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Popup from "./Popup";
 import "./ScrollContainer.css";
+import { Spinner } from "react-bootstrap";
 import $ from "jquery";
 
 const Forums = {
@@ -8,9 +9,11 @@ const Forums = {
   ANNOUNCEMENTS: "announcements"
 };
 
+const LIMIT = 10;
+
 class ScrollContainer extends Component {
   state = {
-    items: 10,
+    items: { patchNotes: 10, announcements: 10 },
     loading: false,
     forum: Forums.PATCH_NOTES
   };
@@ -29,24 +32,53 @@ class ScrollContainer extends Component {
 
   loadMore() {
     this.setState({ loading: true });
-    setTimeout(() => {
-      this.setState({ items: this.state.items + 5, loading: false });
-    }, 500);
+
+    let newItems = this.state.items;
+    newItems[this.state.forum] += 5;
+
+    if (
+      this.state.items[this.state.forum] >
+      this.props.data[this.state.forum].length
+    ) {
+      this.props.handleScroll[this.state.forum](
+        this.state.items[this.state.forum],
+        LIMIT
+      ).then(() => {
+        this.setState({
+          items: newItems,
+          loading: false
+        });
+      });
+    } else {
+      setTimeout(() => {
+        this.setState({ items: newItems, loading: false });
+      }, 500);
+    }
   }
 
   handlePatchClick = () => {
+    let newItems = this.state.items;
+    newItems[this.state.forum] = 10;
     this.setState({
       forum: Forums.PATCH_NOTES,
-      items: (this.state.forum = Forums.PATCH_NOTES ? this.state.items : 10)
+      items: newItems
     });
   };
 
   handleAnnouncementsClick = () => {
+    let newItems = this.state.items;
+    newItems[this.state.forum] = 10;
     this.setState({
       forum: Forums.ANNOUNCEMENTS,
-      items: this.state.forum == Forums.ANNOUNCEMENTS ? this.state.items : 10
+      items: newItems
     });
   };
+
+  getLoader() {
+    return this.state.loading ? (
+      <Spinner animation="border" className="load-spinner" />
+    ) : null;
+  }
 
   render() {
     return (
@@ -59,14 +91,15 @@ class ScrollContainer extends Component {
             className="forum-tab-button"
             onClick={this.handleAnnouncementsClick}
           >
-            Announcements{" "}
+            Announcements
           </button>
         </div>
         {this.props.data[this.state.forum]
-          .slice(0, this.state.items)
+          .slice(0, this.state.items[this.state.forum])
           .map(data => (
             <Popup title={data.title} html={data.html} text={data.text} />
           ))}
+        <div> {this.getLoader()}</div>
       </div>
     );
   }

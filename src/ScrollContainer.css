@@ -14,3 +14,8 @@
 .forum-tab-button {
   margin-left: 5px;
 }
+
+.load-spinner {
+  position: fixed;
+  top: 96%;
+}
