@@ -1,3 +1,7 @@
 .modal {
   font-size: 1.1rem;
 }
+
+.modal-title > a:hover {
+  text-decoration: none;
+}
