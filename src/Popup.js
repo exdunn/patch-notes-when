@@ -5,12 +5,7 @@ import CardButton from "./CardButton";
 import "./Popup.css";
 
 class Popup extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      show: false
-    };
-  }
+  state = { show: false };
 
   toggle = () => {
     this.setState({
@@ -33,7 +28,17 @@ class Popup extends Component {
           toggle={this.toggle}
           size="xl"
         >
-          <ModalHeader toggle={this.toggle}>{this.props.title}</ModalHeader>
+          <ModalHeader toggle={this.toggle}>
+            <a
+              href={
+                "https://www.pathofexile.com/forum/view-thread/" +
+                this.props.thread_num
+              }
+              target="_"
+            >
+              {this.props.title}
+            </a>
+          </ModalHeader>
           <ModalBody>
             <div dangerouslySetInnerHTML={{ __html: this.props.html }}></div>
           </ModalBody>

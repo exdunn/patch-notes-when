@@ -76,7 +76,12 @@ class ScrollContainer extends Component {
         {this.props.data[this.state.forum]
           .slice(0, this.state.items[this.state.forum])
           .map(data => (
-            <Popup title={data.title} html={data.html} text={data.text} />
+            <Popup
+              title={data.title}
+              html={data.html}
+              text={data.text}
+              thread_num={data.thread_num}
+            />
           ))}
         <div> {this.getLoader()}</div>
       </div>
