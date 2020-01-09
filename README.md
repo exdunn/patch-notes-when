@@ -4,10 +4,13 @@
 
 ### https://www.patchnoteswhen.com
 
-## Implementation
+## Features
 * Section for patch notes and announcements
-* Contains post links to the official forum (pathofexile.com/forum)
-* Clean and simply front UI dont in React
+* Resizable, mobile-friendly UI
+* Post links to the official forum (pathofexile.com/forum)
+
+## Implementation
+* Clean and simply front UI built in React, Bootstrap, CSS, and HTML
 * Backend database integration with MongoDB, Express, and Node
 * Deployed with continuous integration using Netlify
 * Hosted backend server on Google App Engine
