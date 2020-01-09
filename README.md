@@ -10,7 +10,7 @@
 * Post links to the official forum (pathofexile.com/forum)
 
 ## Implementation
-* Clean and simply front UI built in React, Bootstrap, CSS, and HTML
+* Clean and simple front-end UI built in React, Bootstrap, CSS, and HTML
 * Backend database integration with MongoDB, Express, and Node
 * Deployed with continuous integration using Netlify
 * Backend Node server hosted with Google App Engine
