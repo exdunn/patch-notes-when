@@ -11,7 +11,7 @@
 
 ## Implementation
 * Clean and simple front-end UI built in React, Bootstrap, CSS, and HTML
-* Backend database integration with MongoDB, Express, and Node
+* MongoDB integration with MongoDB Atlas, Express, Node, Mongoose, and PyMongo
 * Deployed with continuous integration using Netlify
 * Backend Node server hosted with Google App Engine
 * Running python forum crawler with Google Compute Engine and Crontab (every 5 minutes)
